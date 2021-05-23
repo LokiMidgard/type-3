@@ -2,18 +2,11 @@ import { Actor, Color, vec } from 'excalibur';
 import { Sprite } from 'excalibur/build/dist/Graphics';
 import { Resources } from '../../resources';
 
-export class Player extends Actor {
-  constructor() {
-    super({
-      pos: vec(0, 0),
-      width: 25,
-      height: 25,
-      color: new Color(255, 255, 255)
-    });
-  }
+export class Player {
+    public readonly color: Color
+    constructor(color: Color) {
+        this.color = color;
+    }
 
-  onInitialize() {
-        this.graphics.add(Sprite.from(Resources.Sword));
-        
-  }
+
 }

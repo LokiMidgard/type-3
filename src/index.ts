@@ -1,15 +1,16 @@
-import { Engine, Loader, DisplayMode, Random } from 'excalibur';
+import { Engine, Loader, DisplayMode, Random, Color } from 'excalibur';
 import { LevelOne } from './scenes/level-one/level-one';
-import { Player } from './actors/player/player';
+import { Marker } from './actors/player/Marker';
 import { Resources } from './resources';
 import { randomInRange, randomIntInRange } from 'excalibur/build/dist/Util';
 import { Planet } from './actors/planet';
+import { Player } from './actors/player/player';
 
 /**
  * Managed game class
  */
 class Game extends Engine {
-  private player: Player;
+  private player: Marker;
   private levelOne: LevelOne;
 
   constructor() {
@@ -22,9 +23,12 @@ class Game extends Engine {
 
   public start() {
 
+    const player1 = new Player(Color.Blue)
+    const player2 = new Player(Color.Green);
+
     // Create new scene with a player
-    this.levelOne = new LevelOne(this);
-    this.player = new Player();
+    this.levelOne = new LevelOne(this,player1,player2);
+    this.player = new Marker();
     this.levelOne.add(this.player);
 
     this.player.on('pointerdragmove', ev => {
@@ -42,7 +46,7 @@ class Game extends Engine {
   }
 
 
-  private async simulate(player: Player, level: LevelOne) {
+  private async simulate(player: Marker, level: LevelOne) {
     const r = new Random();
     const i = randomIntInRange(0, this.levelOne.planets.length - 1, r);
     let p = this.levelOne.planets[i];
@@ -57,7 +61,7 @@ class Game extends Engine {
       await player.actions.moveTo(p.pos.x, p.pos.y, 90).asPromise();
 
       const g = this.levelOne.groups[0];
-      g.developmentLevel = randomIntInRange(0, g.maximumDevelopmentLevel, r);
+      g.developmentLevel = (g.developmentLevel + 1) % (g.maximumDevelopmentLevel + 1);
 
 
     }

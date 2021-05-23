@@ -1,7 +1,8 @@
-import { Actor, BoundingBox, Color, Engine, Scene, vec } from 'excalibur';
+import { Actor, BoundingBox, Color, Engine, Random, Scene, vec } from 'excalibur';
 import { Circle, Polygon } from 'excalibur/build/dist/Graphics';
 import { Group } from '../../actors/group';
 import { Planet } from '../../actors/planet';
+import { Player } from '../../actors/player/player';
 import { welzl } from '../../utils/welz';
 
 /**
@@ -16,7 +17,7 @@ export class LevelOne extends Scene {
   /**
    *
    */
-  constructor(engine: Engine) {
+  constructor(engine: Engine, ...players: Player[]) {
     super(engine);
     const c = vec(0, 150);
     console.log(`${c}`)
@@ -59,6 +60,19 @@ export class LevelOne extends Scene {
       ];
 
     this.groups = [new Group({}, this.planets[5], this.planets[3], this.planets[4])];
+    const r = new Random();
+    const startingPlanets = r.shuffle(this.planets.filter(x => x.starting));
+    if (startingPlanets.length != players.length) {
+      throw new Error('number of starting planets must match number of players');
+    }
+
+    for (let index = 0; index < startingPlanets.length; index++) {
+      const plenet = startingPlanets[index];
+      const player = players[index];
+      plenet.controlingPlayer = player;
+
+    }
+
   }
 
   public onInitialize(engine: Engine) {

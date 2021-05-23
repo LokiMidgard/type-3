@@ -34,11 +34,15 @@ export class Group extends Actor {
 
         for (let index = 0; index < this.developmentMarker.length; index++) {
             const marker = this.developmentMarker[index];
+
             if (index < this._developmentLevel) {
                 marker.color = Group.markerColor;
             } else {
                 marker.color = Color.Transparent;
             }
+            marker.padding = 4;
+            marker.width = 280;
+            marker.height = 16;
         }
     }
 
@@ -52,13 +56,14 @@ export class Group extends Actor {
             return;
         }
 
-        const d = (enclosingCircle.Radius + planets[0].width / 2 + 43) * 2;
+        const d = (enclosingCircle.Radius + planets[0].width / 2 + 20) * 2;
         super({
             pos: enclosingCircle.Position,
             width: d,
             height: d,
         });
         this.maximumDevelopmentLevel = options.maximumDevelopmentLevel ?? 3;
+        this.developmentLevel = 0;
     }
 
     onInitialize() {
@@ -78,15 +83,14 @@ export class Group extends Actor {
                 color: index < this._developmentLevel ? Group.markerColor : Color.Transparent,
                 strokeColor: Color.Viridian,
                 lineWidth: 4,
-                padding: 2,
+                padding: 4,
                 smoothing: true,
             })
-
             this.developmentMarker[index] = pointingMarker;
             // pointingMarker.showDebug = true;
-            pointingMarker.width = 320;
-            // pointingMarker.height = 80;
-            pointingMarker.rotation = Math.PI / 5 * index + Math.PI / 2;
+            pointingMarker.width = 280;
+            pointingMarker.height = 16;
+            pointingMarker.rotation = Math.PI / 10 * index + Math.PI / 2 + (Math.PI /10)*2.5;
             this.graphics.add(pointingMarker);
         }
 
