@@ -28,6 +28,14 @@ module.exports = {
         use: "ts-loader",
         exclude: /node_modules/,
       },
+      {
+        test: /\.glsl$/,
+        use: ['raw-loader']
+      },
+      {
+        test: /\.css$/,
+        use: ['css-loader']
+      },
     ],
   },
   resolve: {

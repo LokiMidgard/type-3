@@ -3,9 +3,10 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "target": "es5",
-    "module": "es6",
+    "target": "es2015",
+    "module": "es2015",
     "sourceMap": true,
-    "outDir": "./dist/"
+    "outDir": "./dist/",
+    "strictNullChecks": true
   }
 }

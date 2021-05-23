@@ -1,7 +1,9 @@
-import { Engine, Loader, DisplayMode } from 'excalibur';
+import { Engine, Loader, DisplayMode, Random } from 'excalibur';
 import { LevelOne } from './scenes/level-one/level-one';
 import { Player } from './actors/player/player';
 import { Resources } from './resources';
+import { randomInRange, randomIntInRange } from 'excalibur/build/dist/Util';
+import { Planet } from './actors/planet';
 
 /**
  * Managed game class
@@ -11,7 +13,11 @@ class Game extends Engine {
   private levelOne: LevelOne;
 
   constructor() {
-    super({ displayMode: DisplayMode.FullScreen });
+    super({
+      displayMode: DisplayMode.Fill,
+      enableCanvasTransparency: true,
+
+    });
   }
 
   public start() {
@@ -21,12 +27,41 @@ class Game extends Engine {
     this.player = new Player();
     this.levelOne.add(this.player);
 
-    game.add('levelOne', this.levelOne);
+    this.player.on('pointerdragmove', ev => {
+      this.player.pos = ev.pos;
+    });
+
+
+
+    this.add('levelOne', this.levelOne);
 
     // Automatically load all default resources
     const loader = new Loader(Object.values(Resources));
-
+    this.simulate(this.player, this.levelOne);
     return super.start(loader);
+  }
+
+
+  private async simulate(player: Player, level: LevelOne) {
+    const r = new Random();
+    const i = randomIntInRange(0, this.levelOne.planets.length - 1, r);
+    let p = this.levelOne.planets[i];
+    await player.actions.moveTo(p.pos.x, p.pos.y, 90).asPromise();
+    let prevousPlanet: Planet = p;
+    while (true) {
+
+      const neighbors = this.levelOne.getNeigbourPlanets(p).filter(x => x != prevousPlanet);
+      const i = randomIntInRange(0, neighbors.length - 1, r);
+      prevousPlanet = p;
+      p = neighbors[i];
+      await player.actions.moveTo(p.pos.x, p.pos.y, 90).asPromise();
+
+      const g = this.levelOne.groups[0];
+      g.developmentLevel = randomIntInRange(0, g.maximumDevelopmentLevel, r);
+
+
+    }
+
   }
 }
 
