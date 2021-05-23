@@ -2,7 +2,7 @@ import { Engine, Loader, DisplayMode, Random, Color } from 'excalibur';
 import { LevelOne } from './scenes/level-one/level-one';
 import { Marker } from './actors/player/Marker';
 import { Resources } from './resources';
-import { randomInRange, randomIntInRange } from 'excalibur/build/dist/Util';
+import { delay, randomInRange, randomIntInRange } from 'excalibur/build/dist/Util';
 import { Planet } from './actors/planet';
 import { Player } from './actors/player/player';
 
@@ -27,8 +27,8 @@ class Game extends Engine {
     const player2 = new Player(Color.Green);
 
     // Create new scene with a player
-    this.levelOne = new LevelOne(this,player1,player2);
-    this.player = new Marker();
+    this.levelOne = new LevelOne(this, player1, player2);
+    this.player = new Marker(this.levelOne, this.levelOne.planets[0]);
     this.levelOne.add(this.player);
 
     this.player.on('pointerdragmove', ev => {
@@ -48,17 +48,21 @@ class Game extends Engine {
 
   private async simulate(player: Marker, level: LevelOne) {
     const r = new Random();
-    const i = randomIntInRange(0, this.levelOne.planets.length - 1, r);
-    let p = this.levelOne.planets[i];
-    await player.actions.moveTo(p.pos.x, p.pos.y, 90).asPromise();
-    let prevousPlanet: Planet = p;
+    // const i = randomIntInRange(0, this.levelOne.planets.length - 1, r);
+    // let p = this.levelOne.planets[i];
+    // await player.actions.moveTo(p.pos.x, p.pos.y, 90).asPromise();
     while (true) {
 
-      const neighbors = this.levelOne.getNeigbourPlanets(p).filter(x => x != prevousPlanet);
+      const neighbors = this.levelOne.getNeigbourPlanets(player.currentPlanet).filter(x => x != player.targetPlanet);
       const i = randomIntInRange(0, neighbors.length - 1, r);
-      prevousPlanet = p;
-      p = neighbors[i];
-      await player.actions.moveTo(p.pos.x, p.pos.y, 90).asPromise();
+
+      const p = neighbors[i];
+      player.targetPlanet = p;
+      await delay(4000);
+      if (r.bool()) {
+        player.currentPlanet = p;
+        await delay(4000);
+      }
 
       const g = this.levelOne.groups[0];
       g.developmentLevel = (g.developmentLevel + 1) % (g.maximumDevelopmentLevel + 1);
