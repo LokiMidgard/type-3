@@ -2,8 +2,39 @@ import { Actor, BoundingBox, Color, Engine, Random, Scene, vec } from 'excalibur
 import { Circle, Polygon } from 'excalibur/build/dist/Graphics';
 import { Group } from '../../actors/group';
 import { Planet } from '../../actors/planet';
-import { Player } from '../../actors/player/player';
+import { Fleet } from '../../actors/Fleet';
+import { Marker } from '../../actors/marker/Marker';
+import { Player } from '../../model/player';
 import { welzl } from '../../utils/welz';
+import { Background } from '../../actors/background/Stars';
+import { Screen } from '../../actors/marker/screen';
+
+
+export interface LevelDescription {
+  planets: {
+    id: string
+    isPointing: boolean,
+    startingPlanet?: {
+      player: number,
+      startDevelopment: number
+    },
+    maximumDevelopment: number
+    groupId?: string
+    position: {
+      x: number,
+      y: number
+    }
+  }[],
+  groups: {
+    id: string,
+    maximumDevelopment: number
+  }[],
+  lanes: [string, string][],
+  fleets: {
+    player: number,
+    startPlanet: string | undefined
+  }[]
+}
 
 /**
  * Managed scene
@@ -13,75 +44,71 @@ export class LevelOne extends Scene {
   public readonly lanes: [Planet, Planet][];
   public readonly planets: Planet[];
   public readonly groups: Group[];
+  public readonly player: Player;
+  public readonly oponents: Player[];
+  public readonly allPlayers: Player[];
+  public readonly fleets: Fleet[];
+
 
   /**
    *
    */
-  constructor(engine: Engine, ...players: Player[]) {
+  constructor(engine: Engine, levelDescription: LevelDescription, ...players: Player[]) {
     super(engine);
-    const c = vec(0, 150);
-    console.log(`${c}`)
-    this.planets = [
-      new Planet({
-        pos: c,
-        pointing: true
-      }),
-      new Planet({
-        pos: vec(150, 0),
-        starting: true
-      }),
-      new Planet({
-        pos: vec(-150, 0),
-        starting: true
-      }),
-      new Planet({
-        pos: vec(70, -110),
-      }),
-      new Planet({
-        pos: vec(-70, -110),
-      }),
-      new Planet({
-        pos: vec(0, -240),
-      }),
-    ];
-    for (const p of this.planets) {
-      console.log(`x: ${p.pos.x}\ty: ${p.pos.y}`)
-    }
-    console.log("Created")
-    this.lanes =
-      [
-        [this.planets[0], this.planets[1]],
-        [this.planets[0], this.planets[2]],
-        [this.planets[4], this.planets[2]],
-        [this.planets[3], this.planets[1]],
-        [this.planets[3], this.planets[4]],
-        [this.planets[5], this.planets[4]],
-        [this.planets[5], this.planets[3]],
-      ];
+    this.allPlayers = players;
+    this.player = players.filter(x => x.isControling)[0];
+    this.oponents = players.filter(x => !x.isControling);
 
-    this.groups = [new Group({}, this.planets[5], this.planets[3], this.planets[4])];
-    const r = new Random();
-    const startingPlanets = r.shuffle(this.planets.filter(x => x.starting));
-    if (startingPlanets.length != players.length) {
-      throw new Error('number of starting planets must match number of players');
-    }
+    this.planets = levelDescription.planets.map(x =>
+      new Planet({
+        pos: vec(x.position.x, x.position.y),
+        pointing: x.isPointing,
+        maximumDevelopmentLevel: x.maximumDevelopment,
+        id: x.id,
+        owner: x.startingPlanet ? this.allPlayers.filter(y => y.id == x.startingPlanet?.player)[0] : undefined,
+      })
+    );
 
-    for (let index = 0; index < startingPlanets.length; index++) {
-      const plenet = startingPlanets[index];
-      const player = players[index];
-      plenet.controlingPlayer = player;
 
-    }
+    this.lanes = levelDescription.lanes.map(x => [this.planets.filter(y => x[0] == y.name)[0], this.planets.filter(y => x[1] == y.name)[0]])
+
+
+    this.groups = levelDescription.groups.map(x => new Group({}, ...this.planets.filter(y => levelDescription.planets.filter(z => z.id == y.name)[0].groupId == x.id)));
+
+
+
+    this.fleets = levelDescription.fleets.map(x => new Fleet(this, this.allPlayers.filter(y => y.id == x.player)[0], x.startPlanet ? this.planets.filter(y => y.name == x.startPlanet)[0] : undefined));
 
   }
 
+
+  private _selectedObject: Planet | Fleet | undefined;
+  public get selectedObject(): Planet | Fleet | undefined {
+    return this._selectedObject;
+  }
+  public set selectedObject(v: Planet | Fleet | undefined) {
+    this._selectedObject = v;
+    this.marker.target = v;
+  }
+
+  private marker: Marker;
+
+
   public onInitialize(engine: Engine) {
+
+    const background = new Background();
+    this.add(background)
+
+    const screen = new Screen(this);
+    this.add(screen);
 
     this.camera.pos = vec(0, 0);
 
-    for (const p of this.planets) {
-      console.log(`x: ${p.pos.x}\ty: ${p.pos.y}`)
-    }
+    this.marker = new Marker(this);
+
+
+    // const fleets = [new Fleet(this,this.allPlayers.filter(x=>) , this.planets.filter(x => x.controlingPlayer == this.player)[0])]
+
 
     let counter = 0;
     for (const [p1, p2] of this.lanes) {
@@ -89,9 +116,6 @@ export class LevelOne extends Scene {
       const actor = new Actor();
       this.add(actor);
       const linePos = p1.pos.sub(p2.pos);
-      // if (counter>5) {
-      //   continue;
-      // }
       const line = new Polygon({
         points: [vec(0, 0), linePos],
         lineWidth: 1,
@@ -104,25 +128,7 @@ export class LevelOne extends Scene {
     }
 
     for (const group of this.groups) {
-
       this.add(group);
-
-      // const actor = new Actor();
-      // this.add(actor);
-      // const positions = group.map(x => x.pos);
-
-      // const enclosingCircle = welzl(positions);
-      // if (!enclosingCircle) {
-      //   continue;
-      // }
-      // const color = Color.fromRGB(Color.LightGray.r, Color.LightGray.g, Color.LightGray.b, 0.5);
-      // const circle = new Circle({
-      //   color: color,
-
-      //   radius: enclosingCircle.Radius + 60,
-      // });
-      // actor.pos = enclosingCircle.Position;
-      // actor.graphics.add(circle);
     }
 
 
@@ -131,7 +137,49 @@ export class LevelOne extends Scene {
       this.add(planet);
     }
 
+    for (const p of this.fleets) {
+      // p.pos = p.currentPlanet.pos;
+      this.add(p);
+      p.on('pointerup', (c) => {
+        c.bubbles = false
+        if (this.selectedObject instanceof Fleet && this.selectedObject.targetPlanet == undefined) {
+          p.targetPlanet = this.selectedObject.currentPlanet;
+          this.selectedObject = undefined;
+        } else if (this.selectedObject == p) {
+          this.selectedObject = undefined;
+        } else {
+          this.selectedObject = p
+        }
+      });
+    }
+
+    for (const p of this.planets) {
+      p.on('pointerup', (c) => {
+
+        // HACK so we don't hadle planet event if we actually clicked on a fleet
+        if (this.fleets.find(x => x.contains(c.pos.x, c.pos.y))) {
+          return;
+        }
+
+        c.bubbles = false
+        if (this.selectedObject instanceof Fleet && this.selectedObject.owner.isControling) {
+          if (this.selectedObject.currentPlanet == p) {
+            this.selectedObject.targetPlanet = undefined;
+          } else {
+            this.selectedObject.targetPlanet = p;
+          }
+          this.selectedObject = undefined;
+        } else if (this.selectedObject == p) {
+          this.selectedObject = undefined;
+        } else {
+          this.selectedObject = p
+        }
+      });
+    }
+    this.add(this.marker);
   }
+
+
   public onActivate() { }
   public onDeactivate() { }
 

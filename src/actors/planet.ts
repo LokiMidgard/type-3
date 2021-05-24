@@ -3,7 +3,7 @@ import { Circle, Rectangle, Sprite } from 'excalibur/build/dist/Graphics';
 import { randomIntInRange } from 'excalibur/build/dist/Util';
 import { point } from 'excalibur/build/dist/Util/DrawUtil';
 import { Resources } from '../resources';
-import { Player } from './player/player';
+import { Player } from '../model/player';
 
 interface PlanetOptions {
     /**
@@ -14,7 +14,8 @@ interface PlanetOptions {
     maximumDevelopmentLevel?: number;
     pos: Vector;
     pointing?: boolean;
-    starting?: boolean;
+    id: string,
+    owner?: Player
 }
 
 export class Planet extends Actor {
@@ -77,7 +78,7 @@ export class Planet extends Actor {
 
 
     public readonly pointing: boolean;
-    public readonly starting: boolean;
+    public readonly name: string;
 
     constructor(options: PlanetOptions) {
         const radius = 100;
@@ -91,7 +92,8 @@ export class Planet extends Actor {
         this.developmentLevel = 0;
 
         this.pointing = options.pointing ?? false;
-        this.starting = options.starting ?? false;
+        this.name = options.id;
+        this.controlingPlayer = options.owner;
     }
 
     onInitialize() {
