@@ -12,6 +12,7 @@ interface PlanetOptions {
      * You need to control all planets of the group.
      */
     maximumDevelopmentLevel?: number;
+    developmentLevel?: number;
     pos: Vector;
     pointing?: boolean;
     id: string,
@@ -94,6 +95,7 @@ export class Planet extends Actor {
         this.pointing = options.pointing ?? false;
         this.name = options.id;
         this.controlingPlayer = options.owner;
+        this.developmentLevel = options.developmentLevel ?? 0
     }
 
     onInitialize() {

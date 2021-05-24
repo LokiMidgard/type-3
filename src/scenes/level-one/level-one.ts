@@ -65,6 +65,7 @@ export class LevelOne extends Scene {
         pointing: x.isPointing,
         maximumDevelopmentLevel: x.maximumDevelopment,
         id: x.id,
+        developmentLevel: x.startingPlanet?.startDevelopment ?? undefined,
         owner: x.startingPlanet ? this.allPlayers.filter(y => y.id == x.startingPlanet?.player)[0] : undefined,
       })
     );
