@@ -8,7 +8,7 @@ import { Planet } from './planet';
 export class Fleet extends Actor {
 
   private readonly level: LevelOne;
-  public readonly owner:Player;
+  public readonly owner: Player;
 
   private _currentPlanet?: Planet;
   public get currentPlanet(): Planet | undefined {
@@ -50,6 +50,9 @@ export class Fleet extends Actor {
     return this._targetPlanet;
   }
   public set targetPlanet(v: Planet | undefined) {
+    if (this._targetPlanet == v) {
+      return;
+    }
     const rotationSpeed = 10;
     if (this._currentPlanet) {
 

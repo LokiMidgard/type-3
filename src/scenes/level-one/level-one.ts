@@ -68,17 +68,9 @@ export class LevelOne extends Scene {
         owner: x.startingPlanet ? this.allPlayers.filter(y => y.id == x.startingPlanet?.player)[0] : undefined,
       })
     );
-
-
     this.lanes = levelDescription.lanes.map(x => [this.planets.filter(y => x[0] == y.name)[0], this.planets.filter(y => x[1] == y.name)[0]])
-
-
     this.groups = levelDescription.groups.map(x => new Group({}, ...this.planets.filter(y => levelDescription.planets.filter(z => z.id == y.name)[0].groupId == x.id)));
-
-
-
     this.fleets = levelDescription.fleets.map(x => new Fleet(this, this.allPlayers.filter(y => y.id == x.player)[0], x.startPlanet ? this.planets.filter(y => y.name == x.startPlanet)[0] : undefined));
-
   }
 
 
@@ -106,6 +98,7 @@ export class LevelOne extends Scene {
 
     this.marker = new Marker(this);
 
+    let clickWasDownOn: Actor | undefined;
 
     // const fleets = [new Fleet(this,this.allPlayers.filter(x=>) , this.planets.filter(x => x.controlingPlayer == this.player)[0])]
 
@@ -140,7 +133,17 @@ export class LevelOne extends Scene {
     for (const p of this.fleets) {
       // p.pos = p.currentPlanet.pos;
       this.add(p);
+      p.on('pointerdown', () => {
+        clickWasDownOn = p;
+      });
       p.on('pointerup', (c) => {
+
+        if (p != clickWasDownOn) {
+          clickWasDownOn = undefined;
+          return;
+        }
+        clickWasDownOn = undefined;
+
         c.bubbles = false
         if (this.selectedObject instanceof Fleet && this.selectedObject.targetPlanet == undefined) {
           p.targetPlanet = this.selectedObject.currentPlanet;
@@ -154,21 +157,34 @@ export class LevelOne extends Scene {
     }
 
     for (const p of this.planets) {
+      p.on('pointerdown', () => {
+        clickWasDownOn = p;
+      });
       p.on('pointerup', (c) => {
+
 
         // HACK so we don't hadle planet event if we actually clicked on a fleet
         if (this.fleets.find(x => x.contains(c.pos.x, c.pos.y))) {
           return;
         }
+        if (p != clickWasDownOn) {
+          clickWasDownOn = undefined;
+          return;
+        }
+        clickWasDownOn = undefined;
 
         c.bubbles = false
-        if (this.selectedObject instanceof Fleet && this.selectedObject.owner.isControling) {
+        if (this.selectedObject instanceof Fleet
+          && this.selectedObject.owner.isControling
+          && this.selectedObject.currentPlanet
+          && (this.getNeigbourPlanets(this.selectedObject.currentPlanet).find(x => x == p)
+            || this.selectedObject.currentPlanet == p)) {
           if (this.selectedObject.currentPlanet == p) {
             this.selectedObject.targetPlanet = undefined;
           } else {
             this.selectedObject.targetPlanet = p;
           }
-          this.selectedObject = undefined;
+          this.selectedObject = p;
         } else if (this.selectedObject == p) {
           this.selectedObject = undefined;
         } else {
