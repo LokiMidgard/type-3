@@ -119,7 +119,7 @@ export class Planet extends Actor {
         this.graphics.add(sprite);
 
 
-        for (let index = 0; index < 5; index++) {
+        for (let index = 0; index < this.maximumDevelopmentLevel; index++) {
             const pointingMarker = new Circle({
                 radius: 6,
                 color: index < this._developmentLevel ? Planet.markerColor : Color.Transparent,
