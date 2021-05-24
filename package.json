@@ -5,7 +5,7 @@
   "description": "a webpack starter for excaliburjs projects",
   "main": "index.js",
   "scripts": {
-    "test": "npm run build:prod && node ./test/test.js",
+    "test": "npm run build:prod",
     "webpack": "webpack",
     "dev": "webpack serve --config webpack.development.js",
     "start": "npm run dev",
