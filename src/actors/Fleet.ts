@@ -27,6 +27,20 @@ export class Fleet extends Actor {
   }
 
 
+  private _isBombarding: boolean;
+  public get isBombarding(): boolean {
+    return this._isBombarding;
+  }
+  private set isBombardingIntern(v: boolean) {
+    this._isBombarding = v;
+    if (v) {
+      this.graphics.show('bombarding')
+    } else {
+      this.graphics.hide('bombarding')
+    }
+  }
+
+
 
   public get currentPlanet(): Planet | undefined {
     return this._currentPlanet;
@@ -58,11 +72,18 @@ export class Fleet extends Actor {
     } else {
       this.actions.fade(0, 10).callMethod(() => { this.graphics.visible = false });
     }
-
+    this.UpdateState();
   }
 
 
   private _targetPlanet: Planet | undefined;
+  private UpdateState() {
+    this.isBombardingIntern =
+      !this._targetPlanet
+      && this._currentPlanet?.controlingPlayer != undefined
+      && this._currentPlanet?.controlingPlayer != this.owner;
+  }
+
   public get targetPlanet(): Planet | undefined {
     return this._targetPlanet;
   }
@@ -130,6 +151,8 @@ export class Fleet extends Actor {
     if (this._targetPlanet) {
       this.isBuilding = false
     }
+    this.UpdateState();
+
   }
 
 
@@ -156,6 +179,9 @@ export class Fleet extends Actor {
   onInitialize() {
     this.graphics.add(Sprite.from(Resources.Sword));
     this.graphics.add('building', Sprite.from(Resources.BuildIcon));
+    this.graphics.add('bombarding', Sprite.from(Resources.BattleIcon));
+
+    this.UpdateState();
 
   }
 }

@@ -1,4 +1,4 @@
-import { Actor, Color, RotationType,  vec, Vector } from 'excalibur';
+import { Actor, Color, RotationType, vec, Vector } from 'excalibur';
 import { Circle, Sprite } from 'excalibur/build/dist/Graphics';
 import { Resources } from '../../resources';
 import { LevelOne } from '../../scenes/level-one/level-one';
@@ -59,7 +59,7 @@ export class Marker extends Actor {
       color: Color.Transparent, strokeColor: Color.Green, lineWidth: 4,
       padding: 4
     });
-
+    this.graphics.visible = false;
     this.graphics.add(this.curser);
   }
 }

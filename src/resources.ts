@@ -7,6 +7,7 @@ import buttonHexIdle from './images/wenrexaassetsui_scifi/PNG/HexButton_Idle.png
 import buttonHexHover from './images/wenrexaassetsui_scifi/PNG/HexButton_Hover.png';
 import buttonHexPressed from './images/wenrexaassetsui_scifi/PNG/HexButton_Pressed.png';
 import buildIcon from './images/wenrexaassetsui_scifi/PNG/BuildIcon.png';
+import battleIcon from './images/wenrexaassetsui_scifi/PNG/Battle.png';
 import stars1 from './images/Stars-background/spr_stars01.png';
 import stars2 from './images/Stars-background/spr_stars02.png';
 import screen from './images/wenrexaassetsui_scifi/PNG/SelectPanel01.png';
@@ -28,6 +29,7 @@ const Resources = {
     , ButtonHexHover: new ImageSource(buttonHexHover)
     , ButtonHexPressed: new ImageSource(buttonHexPressed)
     , BuildIcon: new ImageSource(buildIcon)
+    , BattleIcon: new ImageSource(battleIcon)
 
 
 

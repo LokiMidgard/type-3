@@ -48,6 +48,8 @@ export class LevelOne extends Scene {
   public readonly oponents: Player[];
   public readonly allPlayers: Player[];
   public readonly fleets: Fleet[];
+  public readonly marker: Marker;
+  public readonly screen: Screen;
 
 
   /**
@@ -72,6 +74,10 @@ export class LevelOne extends Scene {
     this.lanes = levelDescription.lanes.map(x => [this.planets.filter(y => x[0] == y.name)[0], this.planets.filter(y => x[1] == y.name)[0]])
     this.groups = levelDescription.groups.map(x => new Group({}, ...this.planets.filter(y => levelDescription.planets.filter(z => z.id == y.name)[0].groupId == x.id)));
     this.fleets = levelDescription.fleets.map(x => new Fleet(this, this.allPlayers.filter(y => y.id == x.player)[0], x.startPlanet ? this.planets.filter(y => y.name == x.startPlanet)[0] : undefined));
+
+    this.screen = new Screen(this);
+    this.marker = new Marker(this.screen);
+
   }
 
 
@@ -84,7 +90,6 @@ export class LevelOne extends Scene {
     this.marker.target = v;
   }
 
-  private marker: Marker;
 
 
   public onInitialize(engine: Engine) {
@@ -92,12 +97,10 @@ export class LevelOne extends Scene {
     const background = new Background();
     this.add(background)
 
-    const screen = new Screen();
-    this.add(screen);
+    this.add(this.screen);
 
     this.camera.pos = vec(0, 0);
 
-    this.marker = new Marker(screen);
 
     let clickWasDownOn: Actor | undefined;
 
@@ -131,28 +134,30 @@ export class LevelOne extends Scene {
       this.add(planet);
     }
 
-    for (const p of this.fleets) {
+    for (const currentFleet of this.fleets) {
       // p.pos = p.currentPlanet.pos;
-      this.add(p);
-      p.on('pointerdown', () => {
-        clickWasDownOn = p;
+      this.add(currentFleet);
+      currentFleet.on('pointerdown', () => {
+        clickWasDownOn = currentFleet;
       });
-      p.on('pointerup', (c) => {
+      currentFleet.on('pointerup', (c) => {
 
-        if (p != clickWasDownOn) {
+        if (currentFleet != clickWasDownOn) {
           clickWasDownOn = undefined;
           return;
         }
         clickWasDownOn = undefined;
 
         c.bubbles = false
-        if (this.selectedObject instanceof Fleet && this.selectedObject.targetPlanet == undefined) {
-          p.targetPlanet = this.selectedObject.currentPlanet;
+        if (this.selectedObject instanceof Fleet
+          && this.selectedObject.targetPlanet == undefined
+          && this.selectedObject.owner.isControling) {
+          this.selectedObject.targetPlanet = currentFleet.currentPlanet;
           this.selectedObject = undefined;
-        } else if (this.selectedObject == p) {
+        } else if (this.selectedObject == currentFleet) {
           this.selectedObject = undefined;
         } else {
-          this.selectedObject = p
+          this.selectedObject = currentFleet
         }
       });
     }

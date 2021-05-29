@@ -61,7 +61,11 @@ class Game extends Engine {
           isPointing: true,
           maximumDevelopment: 4,
           position: { x: 70, y: -110 },
-          groupId: 'g1'
+          groupId: 'g1',
+          startingPlanet: {
+            player: 0,
+            startDevelopment: 1
+          }
         },
         {
           id: '5',
@@ -92,10 +96,17 @@ class Game extends Engine {
       fleets: [{
         player: 0,
         startPlanet: '2'
+      }, {
+        player: 0,
+        startPlanet: '1'
       },
       {
         player: 1,
         startPlanet: '3'
+      },
+      {
+        player: 1,
+        startPlanet: '4'
       }],
     };
 
