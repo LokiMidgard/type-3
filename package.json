@@ -35,6 +35,6 @@
   },
   "dependencies": {
     "@octokit/core": "^3.4.0",
-    "excalibur": "0.25.0-alpha.84"
+    "excalibur": "0.25.0-alpha.87"
   }
 }

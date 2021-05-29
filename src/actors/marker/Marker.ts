@@ -1,13 +1,14 @@
-import { Actor, Color, RotationType, vec, Vector } from 'excalibur';
+import { Actor, Color, RotationType,  vec, Vector } from 'excalibur';
 import { Circle, Sprite } from 'excalibur/build/dist/Graphics';
 import { Resources } from '../../resources';
 import { LevelOne } from '../../scenes/level-one/level-one';
 import { Planet } from '../planet';
+import { Screen } from './screen';
 
 type targetable = { pos: Vector, width: number, height: number, rotation: number }
 export class Marker extends Actor {
 
-  private readonly level: LevelOne;
+  private readonly screen: Screen;
 
   private curser: Circle;
 
@@ -38,16 +39,17 @@ export class Marker extends Actor {
       })
         .scaleTo(1, 1, 3, 3);
     }
+    this.screen.selectedObject = v;
   }
 
-  constructor(level: LevelOne) {
+  constructor(screen: Screen) {
     super({
       pos: vec(0, 0),
       width: 25,
       height: 25,
       z: 999,
     });
-    this.level = level;
+    this.screen = screen;
     this.scale = vec(0.1, 0.1)
   }
 

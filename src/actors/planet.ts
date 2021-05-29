@@ -1,7 +1,6 @@
 import { Actor, Color, vec, Vector } from 'excalibur';
-import { Circle, Rectangle, Sprite } from 'excalibur/build/dist/Graphics';
+import { Circle, Sprite } from 'excalibur/build/dist/Graphics';
 import { randomIntInRange } from 'excalibur/build/dist/Util';
-import { point } from 'excalibur/build/dist/Util/DrawUtil';
 import { Resources } from '../resources';
 import { Player } from '../model/player';
 

@@ -11,6 +11,23 @@ export class Fleet extends Actor {
   public readonly owner: Player;
 
   private _currentPlanet?: Planet;
+
+
+  private _isBuilding: boolean;
+  public get isBuilding(): boolean {
+    return this._isBuilding;
+  }
+  public set isBuilding(v: boolean) {
+    this._isBuilding = v;
+    if (v) {
+      this.graphics.show('building')
+    } else {
+      this.graphics.hide('building')
+    }
+  }
+
+
+
   public get currentPlanet(): Planet | undefined {
     return this._currentPlanet;
   }
@@ -110,7 +127,9 @@ export class Fleet extends Actor {
         .fade(0.1, 10);
 
     }
-
+    if (this._targetPlanet) {
+      this.isBuilding = false
+    }
   }
 
 
@@ -136,6 +155,7 @@ export class Fleet extends Actor {
 
   onInitialize() {
     this.graphics.add(Sprite.from(Resources.Sword));
+    this.graphics.add('building', Sprite.from(Resources.BuildIcon));
 
   }
 }

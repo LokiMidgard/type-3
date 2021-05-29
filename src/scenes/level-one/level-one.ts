@@ -92,12 +92,12 @@ export class LevelOne extends Scene {
     const background = new Background();
     this.add(background)
 
-    const screen = new Screen(this);
+    const screen = new Screen();
     this.add(screen);
 
     this.camera.pos = vec(0, 0);
 
-    this.marker = new Marker(this);
+    this.marker = new Marker(screen);
 
     let clickWasDownOn: Actor | undefined;
 
